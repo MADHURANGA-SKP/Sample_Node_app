@@ -4,26 +4,86 @@
 
   <body>
     <%- include('./partials/nav.ejs') %>
-
-    <div class="container">
-      <div class="container">
-        <ul class="collection with-header">
-          <% if (items.length > 0) { %> <% items.forEach(item => { %>
-          <li class="collection-item">
-            <div>
-              <a href="/items/<%=item._id %>"><%= item.name %> $<%=
-              item.price %>
-              <a href="#!" class="secondary-content">
-                <i class="material-icons">delete</i>
-                <i class="material-icons">edit</i>
-              </a>
-            </div>
-          </li>
-          <% }); %> <% } else { %>
-          <li>There are no items</li>
-          <% } %>
-        </ul>
+    <div id="itemContainer" class="container">
+      <ul class="collection with-header">
+        <% if (items.length>0) { %> <% items.forEach(item => { %>
+        <li class="collection-item">
+          <div>
+            <a href="/items/<%= item._id%>"><%= item.name%> $<%= item.price%></a
+            ><a href="#!" class="secondary-content">
+              <i class="material-icons" data-id="<%= item._id %>">delete</i
+              ><i
+                class="material-icons modal-trigger"
+                href="#edit_item_modal"
+                data-id="<%= item._id %>"
+                >edit</i
+              ></a
+            >
+          </div>
+        </li>
+        <% }); %> <% }else{%>
+        <li>There are no items</li>
+        <%}%>
+      </ul>
+    </div>
+    <div id="edit_item_modal" class="modal">
+      <div class="modal-content">
+        <h4>Edit Form</h4>
+        <form id="edit_form" action="">
+          <input type="text" name="name" placeholder="item name" />
+          <input type="number" name="price" placeholder="item price" />
+          <button class="btn">update</button>
+        </form>
       </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <script>
+      var updateId;
+      document.addEventListener("DOMContentLoaded", function () {
+        var elems = document.querySelectorAll(".modal");
+        var instances = M.Modal.init(elems);
+      });
+
+      itemContainer.onclick = function (e) {
+        console.log("e.target.textContent", e.target.textContent);
+        if (e.target.textContent === "edit") {
+          updateId = e.target.getAttribute("data-id");
+        }
+
+        edit_form.onsubmit = async function (e) {
+          e.preventDefault();
+          let data = new FormData(edit_form);
+          let response = await fetch(`/items/${updateId}`, {
+            method: "PUT",
+            body: new URLSearchParams(data),
+            headers: new Headers({
+              "Content-type":
+                "application/x-www-form-urlencoded; charset=UTF-8",
+            }),
+          });
+          let result = await response.json();
+          edit_form.reset();
+          window.location.reload();
+          alert(result.msg);
+        };
+
+        if (e.target.textContent === "delete") {
+          // const id = deleteBtn.dataset.id
+          const id = e.target.getAttribute("data-id");
+          console.log(id);
+          const endpoint = `/items/${id}`;
+          fetch(endpoint, {
+            method: "DELETE",
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              console.log("data", data);
+              window.location.href = data.redirect;
+            })
+            .catch((err) => console.log(err));
+        }
+      };
+    </script>
   </body>
 </html>

@@ -10,17 +10,26 @@
         <h5>item name: <%= item.name %></h5>
         <h5>item pice: $<%= item.price %></h5>
       </div>
-      <a id="deleteBtn" class="delete btn" data-id="<%=item._id%>" href=""
+      <a id="deleteBtn" class="delete btn" data-id="<%= item._id %>" href="#"
         >Delete</a
       >
     </div>
     <script>
-      deleteBtn.onClick = function (e) {
+      deleteBtn.onclick = function (e) {
         e.preventDefault();
         console.log("deleteBtn");
         const id = deleteBtn.dataset.id;
         // const id = e.target.getAttribute(data - id);
         const endpoint = `/items/${id}`;
+        fetch(endpoint, {
+          method: "DELETE",
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("data", data);
+            window.location.href = data.redirect;
+          })
+          .catch((err) => console.log(err));
       };
     </script>
   </body>

@@ -5,7 +5,7 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 const mongodb =
-  "mongodb+srv://pasanmadhuranga333:<nopassword>@todo.ttszjeq.mongodb.net/?retryWrites=true&w=majority";
+  "mongodb+srv://your_username:password@todo.ttszjeq.mongodb.net/?retryWrites=true&w=majority";
 mongoose
   .connect(mongodb, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -50,6 +50,20 @@ app.get("/items/:id", (req, res) => {
   Item.findById(id).then((result) => {
     console.log("result", result);
     res.render("item-detail", { item: result });
+  });
+});
+
+app.delete("/items/:id", (req, res) => {
+  const id = req.params.id;
+  Item.findByIdAndDelete(id).then((result) => {
+    res.json({ redirect: "/get-items" });
+  });
+});
+
+app.put("/items/:id", (req, res) => {
+  const id = req.params.id;
+  Item.findByIdAndUpdate(id, req.body).then((result) => {
+    res.json({ msg: "Update Succesfully" });
   });
 });
 
